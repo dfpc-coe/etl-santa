@@ -23,6 +23,8 @@ const InputSchema = Type.Object({
 const OutputSchema = Type.Object({})
 
 export default class Task extends ETL {
+    static name = 'etl-santa'
+
     async schema(type: SchemaType = SchemaType.Input): Promise<TSchema> {
         if (type === SchemaType.Input) {
             return InputSchema;
@@ -50,7 +52,7 @@ export default class Task extends ETL {
     }
 }
 
-await local(new Task(import.meta.ulr), import.meta.url);
+await local(new Task(import.meta.url), import.meta.url);
 export async function handler(event: Event = {}) {
     return await internal(new Task(import.meta.url), event);
 }
