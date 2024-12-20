@@ -1,4 +1,7 @@
 import { Static, Type, TSchema } from '@sinclair/typebox';
+import { lineString } from '@turf/helpers';
+import { lineSliceAlong } from '@turf/line-slice-along';
+import { length } from '@turf/length';
 import type { Event } from '@tak-ps/etl';
 import ETL, { fetch, SchemaType, handler as internal, local, InputFeatureCollection } from '@tak-ps/etl';
 
@@ -50,9 +53,8 @@ export default class Task extends ETL {
 
         const year = new Date().getFullYear();
 
-        body.now = new Date('2024-12-25T10:51:00.000Z').getTime();
-        console.error(body.now);
-        console.error(body.takeoff);
+        // Debug Ability
+        // body.now = new Date('2024-12-25T10:54:01.000Z').getTime();
         if (body.now < body.takeoff) {
             fc.features.push({
                 id: 'santa',
@@ -90,7 +92,12 @@ export default class Task extends ETL {
             }))
 
             const now = new Date(body.now);
-            for (const dest of route.destinations) {
+
+            let prev;
+
+            for (let i = 0; i < route.destinations.length; i++) {
+                const dest = route.destinations[i];
+
                 const arrival = new Date(dest.arrival)
                 arrival.setFullYear(year);
                 const departure = new Date(dest.departure)
@@ -117,7 +124,35 @@ export default class Task extends ETL {
                         }
                     });
                     break;
+                } else if (now < arrival && prev) {
+                    const line = lineString([
+                        [prev.location.lng, prev.location.lat],
+                        [dest.location.lng, dest.location.lat]
+                    ]);
+
+                    const total = dest.arrival - prev.departure;
+                    const flown = body.now - new Date(prev.departure).setFullYear(year);
+                    const percentage = flown/total;
+
+                    const lineLength = length(line);
+
+                    const slice = lineSliceAlong(line, 0, lineLength * percentage)
+
+                    fc.features.push({
+                        id: 'santa',
+                        type: 'Feature',
+                        properties: {
+                            callsign: 'Santa',
+                            remarks: `Santa is flying from ${prev.city}, ${prev.region} to ${dest.city}, ${dest.region}`,
+                        },
+                        geometry: {
+                            type: 'Point',
+                            coordinates: slice.geometry.coordinates[1]
+                        }
+                    });
                 }
+
+                prev = dest;
             }
         }
 
