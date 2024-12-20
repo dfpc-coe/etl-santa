@@ -1,9 +1,6 @@
 import { Static, Type, TSchema } from '@sinclair/typebox';
 import type { Event } from '@tak-ps/etl';
-import ETL, { SchemaType, handler as internal, local, InputFeatureCollection, InputFeature } from '@tak-ps/etl';
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars --  Fetch with an additional Response.typed(TypeBox Object) definition
-import { fetch } from '@tak-ps/etl';
+import ETL, { fetch, SchemaType, handler as internal, local, InputFeatureCollection, InputFeature } from '@tak-ps/etl';
 
 /**
  * The Input Schema contains the environment object that will be requested via the CloudTAK UI
@@ -34,18 +31,36 @@ export default class Task extends ETL {
     }
 
     async control(): Promise<void> {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Get the Environment from the Server and ensure it conforms to the schema
-        const env = await this.env(InputSchema);
+        const res = await fetch('https://santa-api.appspot.com/info?client=web&language=en&fingerprint=&routeOffset=0&streamOffset=0');
 
-        const features: Static<typeof InputFeature>[] = [];
-
-        // Get things here and convert them to GeoJSON Feature Collections
-        // That conform to the node-cot Feature properties spec
-        // https://github.com/dfpc-coe/node-CoT/
+        const body = await res.typed(Type.Object({
+            status: Type.String(),
+            v: Type.String(),
+            now: Type.Integer(),
+            takeoff: Type.Integer(),
+            duration: Type.Integer(),
+            location: Type.String()
+        }));
 
         const fc: Static<typeof InputFeatureCollection> = {
             type: 'FeatureCollection',
-            features: features
+            features: []
+        }
+
+        if (body.now < body.takeoff) {
+            fc.features.push({
+                id: 'santa',
+                type: 'Feature',
+                properties: {
+                    callsign: 'Santa',
+                },
+                geometry: {
+                    type: 'Point',
+                    coordinates: [ 90, 90 ]
+                }
+            });
+        } else {
+
         }
 
         await this.submit(fc);
