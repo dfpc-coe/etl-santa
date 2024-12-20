@@ -1,6 +1,6 @@
 import { Static, Type, TSchema } from '@sinclair/typebox';
 import type { Event } from '@tak-ps/etl';
-import ETL, { fetch, SchemaType, handler as internal, local, InputFeatureCollection, InputFeature } from '@tak-ps/etl';
+import ETL, { fetch, SchemaType, handler as internal, local, InputFeatureCollection } from '@tak-ps/etl';
 
 /**
  * The Input Schema contains the environment object that will be requested via the CloudTAK UI
@@ -39,7 +39,8 @@ export default class Task extends ETL {
             now: Type.Integer(),
             takeoff: Type.Integer(),
             duration: Type.Integer(),
-            location: Type.String()
+            location: Type.String(),
+            route: Type.Array(Type.String())
         }));
 
         const fc: Static<typeof InputFeatureCollection> = {
@@ -47,6 +48,11 @@ export default class Task extends ETL {
             features: []
         }
 
+        const year = new Date().getFullYear();
+
+        body.now = new Date('2024-12-25T10:51:00.000Z').getTime();
+        console.error(body.now);
+        console.error(body.takeoff);
         if (body.now < body.takeoff) {
             fc.features.push({
                 id: 'santa',
@@ -59,8 +65,60 @@ export default class Task extends ETL {
                     coordinates: [ 90, 90 ]
                 }
             });
-        } else {
+        } else if (body.route.length) {
+            const routeRes = await fetch(body.route[0]);
+            const route = await routeRes.typed(Type.Object({
+                destinations: Type.Array(Type.Object({
+                    id: Type.String(),
+                    arrival: Type.Integer(),
+                    departure: Type.Integer(),
+                    population: Type.Integer(),
+                    presentsDelivered: Type.Integer(),
+                    city: Type.String(),
+                    region: Type.String(),
+                    location: Type.Object({
+                        lat: Type.Number(),
+                        lng: Type.Number(),
+                    }),
+                    details: Type.Object({
+                        timezone: Type.Integer(),
+                        photos: Type.Array(Type.Object({
+                            url: Type.String()
+                        }))
+                    }),
+                }))
+            }))
 
+            const now = new Date(body.now);
+            for (const dest of route.destinations) {
+                const arrival = new Date(dest.arrival)
+                arrival.setFullYear(year);
+                const departure = new Date(dest.departure)
+                departure.setFullYear(year);
+
+                if (now >= arrival && now <= departure) {
+                    fc.features.push({
+                        id: 'santa',
+                        type: 'Feature',
+                        properties: {
+                            callsign: 'Santa',
+                            remarks: `Delivering presents in ${dest.city}, ${dest.region}\nPopulation: ${dest.population}`,
+                            links: dest.details.photos.map((photo, id) => {
+                                return {
+                                    url: photo.url,
+                                    mime: 'text/html',
+                                    remarks: `Photo of ${dest.city}, ${dest.region} #${id}`
+                                }
+                            })
+                        },
+                        geometry: {
+                            type: 'Point',
+                            coordinates: [ dest.location.lng, dest.location.lat ]
+                        }
+                    });
+                    break;
+                }
+            }
         }
 
         await this.submit(fc);
