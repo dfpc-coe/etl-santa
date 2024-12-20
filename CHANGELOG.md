@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v1.1.1
+
+- :rocket: Fix build
+
 ### v1.1.0
 
 - :rocket: Initial Approach

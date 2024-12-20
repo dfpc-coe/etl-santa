@@ -1,6 +1,6 @@
-import { Type, TSchema } from '@sinclair/typebox';
+import { Static, Type, TSchema } from '@sinclair/typebox';
 import type { Event } from '@tak-ps/etl';
-import ETL, { SchemaType, handler as internal, local, InputFeatureCollection } from '@tak-ps/etl';
+import ETL, { SchemaType, handler as internal, local, InputFeatureCollection, InputFeature } from '@tak-ps/etl';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars --  Fetch with an additional Response.typed(TypeBox Object) definition
 import { fetch } from '@tak-ps/etl';
@@ -37,7 +37,7 @@ export default class Task extends ETL {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Get the Environment from the Server and ensure it conforms to the schema
         const env = await this.env(InputSchema);
 
-        const features: Feature[] = [];
+        const features: Static<typeof InputFeature>[] = [];
 
         // Get things here and convert them to GeoJSON Feature Collections
         // That conform to the node-cot Feature properties spec
