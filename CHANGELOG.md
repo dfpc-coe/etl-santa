@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v1.2.0
+
+- :tada: Support destinations and animations between them
+
 ### v1.1.1
 
 - :rocket: Fix build
