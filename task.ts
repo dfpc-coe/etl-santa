@@ -154,6 +154,8 @@ export default class Task extends ETL {
                             coordinates: slice.geometry.coordinates[1]
                         }
                     });
+
+                    break;
                 }
 
                 prev = dest;
