@@ -131,7 +131,11 @@ export default class Task extends ETL {
                     ]);
 
                     const total = dest.arrival - prev.departure;
-                    const flown = body.now - new Date(prev.departure).setFullYear(year);
+
+                    const prevDepart = new Date(prev.departure)
+                    prevDepart.setFullYear(year);
+                    const flown = body.now - prevDepart.getTime()
+
                     const percentage = flown/total;
 
                     const lineLength = length(line);

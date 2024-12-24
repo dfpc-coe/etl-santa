@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v1.3.0
+
+- :bug: Fix a bug resulting in negative percentages and thus invalid input to Turf
+
 ### v1.2.0
 
 - :tada: Support destinations and animations between them
