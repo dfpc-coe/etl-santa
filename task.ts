@@ -3,7 +3,7 @@ import { lineString } from '@turf/helpers';
 import { lineSliceAlong } from '@turf/line-slice-along';
 import { length } from '@turf/length';
 import type { Event } from '@tak-ps/etl';
-import ETL, { fetch, SchemaType, handler as internal, local, InputFeatureCollection } from '@tak-ps/etl';
+import ETL, { fetch, SchemaType, handler as internal, local, InputFeatureCollection, DataFlowType, InvocationType } from '@tak-ps/etl';
 
 /**
  * The Input Schema contains the environment object that will be requested via the CloudTAK UI
@@ -24,12 +24,21 @@ const OutputSchema = Type.Object({})
 
 export default class Task extends ETL {
     static name = 'etl-santa'
+    static flow = [ DataFlowType.Incoming ];
+    static invocation = [ InvocationType.Schedule ];
 
-    async schema(type: SchemaType = SchemaType.Input): Promise<TSchema> {
-        if (type === SchemaType.Input) {
-            return InputSchema;
+    async schema(
+        type: SchemaType = SchemaType.Input,
+        flow: DataFlowType = DataFlowType.Incoming
+    ): Promise<TSchema> {
+        if (flow === DataFlowType.Incoming) {
+            if (type === SchemaType.Input) {
+                return InputSchema;
+            } else {
+                return OutputSchema;
+            }
         } else {
-            return OutputSchema;
+            return Type.Object({});
         }
     }
 

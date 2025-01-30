@@ -10,6 +10,10 @@
 
 ## Version History
 
+### v1.5.0
+
+- :tada: Update Capabilities API
+
 ### v1.4.0
 
 - :bug: Fix a bug resulting in negative percentages and thus invalid input to Turf

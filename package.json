@@ -21,7 +21,7 @@
     },
     "dependencies": {
         "@sinclair/typebox": "^0.34.0",
-        "@tak-ps/etl": "^6.2.0",
+        "@tak-ps/etl": "^7.1.0",
         "@turf/length": "^7.1.0",
         "@turf/line-slice-along": "^7.1.0"
     }
