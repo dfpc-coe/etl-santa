@@ -1,9 +1,10 @@
 import { Static, Type, TSchema } from '@sinclair/typebox';
+import { Feature } from '@tak-ps/node-cot'
 import { lineString } from '@turf/helpers';
 import { lineSliceAlong } from '@turf/line-slice-along';
 import { length } from '@turf/length';
 import type { Event } from '@tak-ps/etl';
-import ETL, { fetch, SchemaType, handler as internal, local, InputFeatureCollection, DataFlowType, InvocationType } from '@tak-ps/etl';
+import ETL, { fetch, SchemaType, handler as internal, local, DataFlowType, InvocationType } from '@tak-ps/etl';
 
 /**
  * The Input Schema contains the environment object that will be requested via the CloudTAK UI
@@ -55,7 +56,7 @@ export default class Task extends ETL {
             route: Type.Array(Type.String())
         }));
 
-        const fc: Static<typeof InputFeatureCollection> = {
+        const fc: Static<typeof Feature.InputFeatureCollection> = {
             type: 'FeatureCollection',
             features: []
         }
