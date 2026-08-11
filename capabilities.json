@@ -1,0 +1,27 @@
+{
+    "version": "1.0",
+    "name": "Santa Tracker",
+    "description": "Posts Santa's simulated position to the map as a seasonal tracking feature.",
+    "compute": {
+        "memory": 512,
+        "timeout": 60
+    },
+    "permissions": [
+        {
+            "resource": "feature:*",
+            "required": true,
+            "description": "Posts Santa's simulated position to the map"
+        }
+    ],
+    "invocations": {
+        "incoming": {
+            "schedule": {
+                "description": "Updates Santa's simulated position on a schedule.",
+                "default": {
+                    "enabled": true,
+                    "schedule": "rate(1 minute)"
+                }
+            }
+        }
+    }
+}
